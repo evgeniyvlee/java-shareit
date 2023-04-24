@@ -96,7 +96,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private Item createItemForUpdate(final Item existItem, final ItemDto itemDto, final Long ownerId) {
-        if (existItem.getOwner().getId() != ownerId) {
+        if (!existItem.getOwner().getId().equals(ownerId)) {
             throw new ForbiddenException(ExceptionMessages.INVALID_OWNER);
         }
 
