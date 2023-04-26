@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import ru.practicum.shareit.messages.LoggingMessages;
+import ru.practicum.shareit.user.dto.UserDto;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -27,25 +28,25 @@ public class UserController {
     private final UserService service;
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
+    public UserDto create(@Valid @RequestBody UserDto user) {
         log.debug(LoggingMessages.CREATE.toString(), user);
         return service.create(user);
     }
 
     @GetMapping("{id}")
-    public User get(@PathVariable Long id) {
+    public UserDto get(@PathVariable Long id) {
         log.debug(LoggingMessages.GET.toString(), id);
         return service.get(id);
     }
 
     @GetMapping
-    public List<User> getAll() {
+    public List<UserDto> getAll() {
         log.debug(LoggingMessages.GET_ALL.toString());
         return service.getAll();
     }
 
     @PatchMapping("{id}")
-    public User update(@PathVariable Long id, @RequestBody User user) {
+    public UserDto update(@PathVariable Long id, @RequestBody UserDto user) {
         log.debug(LoggingMessages.UPDATE.toString(), user);
         return service.update(id, user);
     }

@@ -45,7 +45,7 @@ public class ItemServiceImpl implements ItemService {
      */
     @Override
     public ItemDto update(final Long id, final ItemDto itemDto, final Long ownerId) {
-        Item existItem = itemStorage.get(id);
+        Item existItem = getItemById(id);
         Item updateItem = createItemForUpdate(existItem, itemDto, ownerId);
         return ItemMapper.toItemDto(itemStorage.update(updateItem));
     }
@@ -55,10 +55,7 @@ public class ItemServiceImpl implements ItemService {
      */
     @Override
     public ItemDto get(final Long id) {
-        Item item = itemStorage.get(id);
-        if (item == null) {
-            throw new DataNotFoundException(ExceptionMessages.DATA_NOT_FOUND);
-        }
+        Item item = getItemById(id);
         return ItemMapper.toItemDto(item);
     }
 
@@ -67,10 +64,7 @@ public class ItemServiceImpl implements ItemService {
      */
     @Override
     public void delete(final Long id) {
-        Item item = itemStorage.get(id);
-        if (item == null) {
-            throw new DataNotFoundException(ExceptionMessages.DATA_NOT_FOUND);
-        }
+        getItemById(id);
         itemStorage.delete(id);
     }
 
@@ -93,6 +87,19 @@ public class ItemServiceImpl implements ItemService {
         if (text != null && !text.isBlank())
             items = itemStorage.search(ownerId, text);
         return ItemMapper.toItemsDto(items);
+    }
+
+    /*
+     * Get item by its ID and throw DataNotFoundException if item not found
+     * @param id item ID
+     * @return found item
+     */
+    private Item getItemById(Long id) {
+        Item item = itemStorage.get(id);
+        if (item == null) {
+            throw new DataNotFoundException(ExceptionMessages.DATA_NOT_FOUND);
+        }
+        return item;
     }
 
     private Item createItemForUpdate(final Item existItem, final ItemDto itemDto, final Long ownerId) {

@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DataAlreadyExistException;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.messages.ExceptionMessages;
+import ru.practicum.shareit.user.dto.UserDto;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * User service implementation
@@ -25,40 +25,43 @@ public class UserServiceImpl implements UserService {
      * {@inheritDoc}
      */
     @Override
-    public User create(final User user) {
+    public UserDto create(final UserDto userDto) {
+        User user = UserMapper.toUser(userDto);
         validate(user);
-        return storage.create(user);
+        return UserMapper.toUserDto(storage.create(user));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public User get(final Long id) {
+    public UserDto get(final Long id) {
         User user = storage.get(id);
         if (user == null) {
             throw new DataNotFoundException(ExceptionMessages.DATA_NOT_FOUND);
         }
-        return user;
+        return UserMapper.toUserDto(user);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<User> getAll() {
-        return storage.getAll();
+    public List<UserDto> getAll() {
+        return UserMapper.toUsersDto(storage.getAll());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public User update(final Long id, final User user) {
-        User existUser = get(id);
-        fillUserInfoForUpdate(existUser, user);
+    public UserDto update(final Long id, final UserDto userDto) {
+        userDto.setId(id);
+        User existUser = UserMapper.toUser(get(id));
+        User user = UserMapper.toUser(userDto);
         validate(user);
-        return storage.update(user);
+        fillUserInfoForUpdate(existUser, user);
+        return UserMapper.toUserDto(storage.update(user));
     }
 
     /**
@@ -66,19 +69,24 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void delete(Long id) {
-        User user = get(id);
+        UserDto user = get(id);
         storage.delete(user.getId());
     }
 
     private boolean validate(final User user) {
-        List<User> usersWithName = storage.getByName(user.getName()).stream()
-                .filter(i -> !i.getId().equals(user.getId()))
-                .collect(Collectors.toList());
-        List<User> usersWithEmail = storage.getByEmail(user.getEmail()).stream()
-                .filter(i -> !i.getId().equals(user.getId()))
-                .collect(Collectors.toList());;
-        if (usersWithName.size() > 0 || usersWithEmail.size() > 0) {
-            throw new DataAlreadyExistException(ExceptionMessages.DATA_ALREADY_EXIST);
+        if (storage.isExist(user.getName(), user.getEmail())) {
+            Long userId = user.getId();
+            if (userId == null) {
+                throw new DataAlreadyExistException(ExceptionMessages.DATA_ALREADY_EXIST);
+            } else {
+                String userName = user.getName();
+                String userEmail = user.getEmail();
+                if ((userName != null && !storage.get(userId).getName().equals(userName)) ||
+                        (userEmail != null && !storage.get(userId).getEmail().equals(userEmail)))
+                {
+                    throw new DataAlreadyExistException(ExceptionMessages.DATA_ALREADY_EXIST);
+                }
+            }
         }
         return true;
     }

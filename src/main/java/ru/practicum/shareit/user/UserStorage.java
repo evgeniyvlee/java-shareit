@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import ru.practicum.shareit.data.DataStorage;
-import java.util.List;
 
 /**
  * User storage interface
@@ -9,16 +8,10 @@ import java.util.List;
  */
 public interface UserStorage extends DataStorage<User> {
     /**
-     * Get user list by name
+     * Check is user with name or email exists in storage
      * @param name user name
-     * @return user list
-     */
-    List<User> getByName(String name);
-
-    /**
-     * Get user list by email
      * @param email user email
-     * @return user list
+     * @return is exist?
      */
-    List<User> getByEmail(String email);
+    boolean isExist(String name, String email);
 }
