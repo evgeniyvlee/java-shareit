@@ -82,8 +82,7 @@ public class UserServiceImpl implements UserService {
                 String userName = user.getName();
                 String userEmail = user.getEmail();
                 if ((userName != null && !storage.get(userId).getName().equals(userName)) ||
-                        (userEmail != null && !storage.get(userId).getEmail().equals(userEmail)))
-                {
+                        (userEmail != null && !storage.get(userId).getEmail().equals(userEmail))) {
                     throw new DataAlreadyExistException(ExceptionMessages.DATA_ALREADY_EXIST);
                 }
             }

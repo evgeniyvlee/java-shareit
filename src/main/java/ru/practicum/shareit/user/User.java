@@ -1,8 +1,6 @@
 package ru.practicum.shareit.user;
 
 import ru.practicum.shareit.data.Data;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 
 /**
  * User info
