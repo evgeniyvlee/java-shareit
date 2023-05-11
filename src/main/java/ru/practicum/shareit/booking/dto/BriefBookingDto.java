@@ -2,18 +2,16 @@ package ru.practicum.shareit.booking.dto;
 
 import lombok.Data;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
- * Class for holding booking info
+ * Class for holding brief info booking
  * @author Evgeniy Lee
  */
 @Data
-public class BookingDto {
+public class BriefBookingDto {
     // Booking ID
     private Long id;
 
@@ -27,11 +25,11 @@ public class BookingDto {
     @Future
     private LocalDateTime end;
 
-    // Item
-    private Item item;
+    // Item ID
+    private Long itemId;
 
-    // Booker
-    private User booker;
+    // Booker ID
+    private Long bookerId;
 
     // Booking status default is waiting
     private BookingStatus status = BookingStatus.WAITING;

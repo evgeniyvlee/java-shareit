@@ -17,16 +17,31 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleForbiddenException(final ForbiddenException exception) {
         log.error("Exception ForbiddenException {}", exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleDataAlreadyExistException(final DataAlreadyExistException exception) {
-        log.error("Exception DataAlreadyExistException {}", exception.getMessage(), exception);
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(final ValidationException exception) {
+        log.error("Exception ValidationException {}", exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBadRequestException(final BadRequestException exception) {
+        log.error(exception.getMessage());
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUnknownStateException(final UnknownStateException exception) {
+        log.error(exception.getMessage());
+        return new ErrorResponse(exception.getMessage());
+    }
+
 }

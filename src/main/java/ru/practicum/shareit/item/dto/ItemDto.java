@@ -1,16 +1,21 @@
 package ru.practicum.shareit.item.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import ru.practicum.shareit.data.Data;
+import lombok.Data;
+import ru.practicum.shareit.booking.dto.BriefBookingDto;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Item class holds info for items
  * @author Evgeniy Lee
  */
-@lombok.Data
-public class ItemDto extends Data {
+@Data
+public class ItemDto {
+    // Item ID
+    private Long id;
     // Item name
     @NotBlank
     private String name;
@@ -23,4 +28,10 @@ public class ItemDto extends Data {
     // Item owner ID
     @JsonIgnore
     private Long ownerId;
+    // List of comments
+    private List<CommentDto> comments;
+    // Last booking
+    private BriefBookingDto lastBooking;
+    // Next booking
+    private BriefBookingDto nextBooking;
 }

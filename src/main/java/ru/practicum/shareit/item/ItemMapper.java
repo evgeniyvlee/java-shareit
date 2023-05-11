@@ -51,7 +51,7 @@ public class ItemMapper {
      * @param items list of items
      * @return list of items DTO
      */
-    public static List<ItemDto> toItemsDto(final List<Item> items) {
+    public static List<ItemDto> toItemDtoList(final List<Item> items) {
         List<ItemDto> itemsDto = new ArrayList<>();
         if (items != null)
             items.stream().forEach(i -> itemsDto.add(ItemMapper.toItemDto(i)));
