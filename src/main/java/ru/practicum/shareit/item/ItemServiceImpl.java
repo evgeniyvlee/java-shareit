@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -18,8 +19,8 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Item service implementation
@@ -36,6 +37,8 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     // Booking DB repository
     private final BookingRepository bookingRepository;
+    // Ascending sort
+    //public static final Sort ASC_SORT = Sort.by(Sort.Direction.ASC);
 
     @Transactional
     @Override
@@ -75,9 +78,17 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto get(final Long itemId, final Long userId) {
         Item item = getItemById(itemId);
         ItemDto itemDto = ItemMapper.toItemDto(item);
-        addCommentsByItem(itemDto);
+        List<Comment> comments = getCommentsByItemIds(Arrays.asList(itemId)).get(itemId);
+        itemDto.setComments(CommentMapper.toCommentDtoList(comments));
+
         if (userId.equals(itemDto.getOwnerId())) {
-            addBookingsByItem(itemDto);
+            Map<Long, List<Booking>> bookingsGroupByItemIds = getBookingsByItemIds(Arrays.asList(itemId));
+            Booking lastBooking = getLastBooking(bookingsGroupByItemIds, itemId);
+            Booking nextBooking = getNextBooking(bookingsGroupByItemIds, itemId);
+            if (lastBooking != null)
+                itemDto.setLastBooking(BookingMapper.toBriefBookingDto(lastBooking));
+            if (nextBooking != null)
+                itemDto.setNextBooking(BookingMapper.toBriefBookingDto(nextBooking));
         }
         return itemDto;
     }
@@ -93,10 +104,24 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getByOwner(final Long ownerId) {
         List<ItemDto> itemDtoList = new ArrayList<>();
         List<Item> items = itemRepository.findByOwnerId(ownerId);
+        List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
+        Map<Long, List<Booking>> bookingsGroupByItemIds = getBookingsByItemIds(itemIds);
+        Map<Long, List<Comment>> commentsGroupByItemIds = getCommentsByItemIds(itemIds);
+
         for (Item item : items) {
             ItemDto itemDto = ItemMapper.toItemDto(item);
-            addCommentsByItem(itemDto);
-            addBookingsByItem(itemDto);
+            Long itemId = item.getId();
+            Booking lastBooking = getLastBooking(bookingsGroupByItemIds, itemId);
+            Booking nextBooking = getNextBooking(bookingsGroupByItemIds, itemId);
+            List<Comment> comments = commentsGroupByItemIds.get(itemId);
+
+            if (lastBooking != null)
+                itemDto.setLastBooking(BookingMapper.toBriefBookingDto(lastBooking));
+            if (nextBooking != null)
+                itemDto.setNextBooking(BookingMapper.toBriefBookingDto(nextBooking));
+            if (comments != null)
+                itemDto.setComments(CommentMapper.toCommentDtoList(comments));
+
             itemDtoList.add(itemDto);
         }
         return itemDtoList;
@@ -119,34 +144,75 @@ public class ItemServiceImpl implements ItemService {
         Item item = getItemById(itemId);
         LocalDateTime created = LocalDateTime.now();
         List<Booking> bookerItems = bookingRepository
-                .findAllByBookerIdAndItemIdAndEndBeforeAndStatus(userId, itemId, created, BookingStatus.APPROVED);
+                .findAllByBookerIdAndItemIdAndEndBeforeAndStatus(userId, itemId, created, BookingStatus.APPROVED,
+                        BookingRepository.SORT_START_DATE_DESC);
         if (bookerItems.isEmpty()) {
-            throw new BadRequestException("ssss");
+            throw new BadRequestException(ExceptionMessages.NO_BOOKER_FOR_ITEM);
         }
         Comment comment = CommentMapper.toComment(commentDto, user, item, created);
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 
-    // Add bookings to item by item ID
     @Transactional(readOnly = true)
-    private void addBookingsByItem(final ItemDto itemDto) {
-        Long itemId = itemDto.getId();
-        LocalDateTime now = LocalDateTime.now();
-
-        List<Booking> lastBookings = bookingRepository
-                .findAllByItemIdAndStartBeforeAndStatusOrderByStartDesc(itemId, now, BookingStatus.APPROVED);
-        List<Booking> nextBookings = bookingRepository
-                .findAllByItemIdAndStartAfterAndStatusOrderByStartAsc(itemId, now, BookingStatus.APPROVED);
-
-        itemDto.setLastBooking(lastBookings.isEmpty() ? null : BookingMapper.toBriefBookingDto(lastBookings.get(0)));
-        itemDto.setNextBooking(nextBookings.isEmpty() ? null : BookingMapper.toBriefBookingDto(nextBookings.get(0)));
+    private Map<Long, List<Booking>> getBookingsByItemIds(final List<Long> itemIds) {
+        Map<Long, List<Booking>> bookingsGroupByItemIds = new HashMap<>();
+        List<Booking> bookings = bookingRepository.findAllByItemIdIn(itemIds);
+        for (Booking booking : bookings) {
+            Long itemId = booking.getItem().getId();
+            List<Booking> bookingsByItemId = bookingsGroupByItemIds.get(itemId);
+            if (bookingsByItemId == null) {
+                bookingsByItemId = new ArrayList<>();
+            }
+            bookingsByItemId.add(booking);
+            bookingsGroupByItemIds.put(itemId, bookingsByItemId);
+        }
+        return bookingsGroupByItemIds;
     }
 
-    // Add comments to item by item ID
+    private Booking getLastBooking(final Map<Long, List<Booking>> bookingsGroupByItemIds, final Long itemId) {
+        List<Booking> bookings = bookingsGroupByItemIds.get(itemId);
+        Booking lastBooking = null;
+        if (bookings != null) {
+            List<Booking> lastBookings = bookings
+                    .stream()
+                    .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+            if (!lastBookings.isEmpty())
+                lastBooking = lastBookings.get(0);
+        }
+        return lastBooking;
+    }
+
+    private Booking getNextBooking(final Map<Long, List<Booking>> bookingsGroupByItemIds, final Long itemId) {
+        List<Booking> bookings = bookingsGroupByItemIds.get(itemId);
+        Booking nextBooking = null;
+        if (bookings != null) {
+            List<Booking> nextBookings = bookings
+                    .stream()
+                    .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                    .sorted(Comparator.comparing(Booking::getStart))
+                    .collect(Collectors.toList());
+            if (!nextBookings.isEmpty())
+                nextBooking = nextBookings.get(0);
+        }
+        return nextBooking;
+    }
+
     @Transactional(readOnly = true)
-    private void addCommentsByItem(final ItemDto itemDto) {
-        List<Comment> comments = commentRepository.findAllByItemIdOrderByIdAsc(itemDto.getId());
-        itemDto.setComments(CommentMapper.toCommentDtoList(comments));
+    private Map<Long, List<Comment>> getCommentsByItemIds(final List<Long> itemIds) {
+        Map<Long, List<Comment>> commentsGroupByItemIds = new HashMap<>();
+        List<Comment> comments = commentRepository.findAllByItemIdInOrderById(itemIds, Sort.by(Sort.Direction.ASC, "id"));
+        for (Comment comment : comments) {
+            Long itemId = comment.getItem().getId();
+            List<Comment> commentsByItemId = commentsGroupByItemIds.get(itemId);
+            if (commentsByItemId == null) {
+                commentsByItemId = new ArrayList<>();
+            }
+            commentsByItemId.add(comment);
+            commentsGroupByItemIds.put(itemId, commentsByItemId);
+        }
+        return commentsGroupByItemIds;
     }
 
     // Get user from user repository by user ID

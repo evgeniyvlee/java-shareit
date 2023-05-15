@@ -40,7 +40,7 @@ public class Item {
 
     // Item owner
     @ManyToOne
-    @JoinColumn(name = "owner_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "owner_id", referencedColumnName = "id")
     private User owner;
 
     // Item request for booking

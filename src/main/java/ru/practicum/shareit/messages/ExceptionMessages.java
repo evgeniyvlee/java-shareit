@@ -6,4 +6,5 @@ public interface ExceptionMessages {
     String BAD_REQUEST = "Bad request";
     String UNKNOWN_STATE = "Unknown state: %s";
     String INVALID_DATA = "Data not valid";
+    String NO_BOOKER_FOR_ITEM = "Booker or item for comment not found";
 }

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
@@ -30,20 +31,22 @@ public class Booking {
 
     // Start date
     @Column(name = "start_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime start;
 
     // End date
     @Column(name = "end_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime end;
 
     // Item
     @ManyToOne
-    @JoinColumn(name = "item_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "item_id", referencedColumnName = "id")
     private Item item;
 
     // Booker
     @ManyToOne
-    @JoinColumn(name = "booker_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "booker_id", referencedColumnName = "id")
     private User booker;
 
     // Booking status default is waiting

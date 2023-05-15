@@ -31,12 +31,12 @@ public class Comment {
 
     // Commented item
     @ManyToOne
-    @JoinColumn(name = "item_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "item_id", referencedColumnName = "id")
     private Item item;
 
     // Comment author
     @ManyToOne
-    @JoinColumn(name = "author_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "author_id", referencedColumnName = "id")
     private User author;
 
     // Comment created date
