@@ -37,8 +37,6 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     // Booking DB repository
     private final BookingRepository bookingRepository;
-    // Ascending sort
-    //public static final Sort ASC_SORT = Sort.by(Sort.Direction.ASC);
 
     @Transactional
     @Override
@@ -73,7 +71,6 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.toItemDto(item);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public ItemDto get(final Long itemId, final Long userId) {
         Item item = getItemById(itemId);
@@ -99,7 +96,6 @@ public class ItemServiceImpl implements ItemService {
         itemRepository.deleteById(itemId);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<ItemDto> getByOwner(final Long ownerId) {
         List<ItemDto> itemDtoList = new ArrayList<>();
@@ -127,7 +123,6 @@ public class ItemServiceImpl implements ItemService {
         return itemDtoList;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<ItemDto> search(final Long ownerId, final String text) {
         if ((text == null) || (text.isBlank())) {
@@ -153,7 +148,6 @@ public class ItemServiceImpl implements ItemService {
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 
-    @Transactional(readOnly = true)
     private Map<Long, List<Booking>> getBookingsByItemIds(final List<Long> itemIds) {
         Map<Long, List<Booking>> bookingsGroupByItemIds = new HashMap<>();
         List<Booking> bookings = bookingRepository.findAllByItemIdIn(itemIds);
@@ -199,7 +193,6 @@ public class ItemServiceImpl implements ItemService {
         return nextBooking;
     }
 
-    @Transactional(readOnly = true)
     private Map<Long, List<Comment>> getCommentsByItemIds(final List<Long> itemIds) {
         Map<Long, List<Comment>> commentsGroupByItemIds = new HashMap<>();
         List<Comment> comments = commentRepository.findAllByItemIdInOrderById(itemIds, Sort.by(Sort.Direction.ASC, "id"));
@@ -216,14 +209,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     // Get user from user repository by user ID
-    @Transactional(readOnly = true)
     private User getUserById(final Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException(ExceptionMessages.DATA_NOT_FOUND));
     }
 
     // Get item from item repository by item ID
-    @Transactional(readOnly = true)
     private Item getItemById(final Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new DataNotFoundException(ExceptionMessages.DATA_NOT_FOUND));

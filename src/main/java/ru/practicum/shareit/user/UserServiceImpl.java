@@ -25,7 +25,6 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(user);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public UserDto get(Long id) {
         User user = repository.findById(id)
@@ -33,7 +32,6 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(user);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<UserDto> getAll() {
         List<User> users = repository.findAll();

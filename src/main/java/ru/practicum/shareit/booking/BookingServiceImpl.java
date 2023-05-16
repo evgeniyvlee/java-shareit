@@ -82,13 +82,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private boolean validateUserIsItemOwner(Long userId, Item item) {
-        if (userId.equals(item.getOwner().getId())) {
-            return true;
-        } else
-            return false;
+        return userId.equals(item.getOwner().getId());
     }
 
-    @Transactional(readOnly = true)
     @Override
     public BookingDto get(final Long bookingId, final Long userId) {
         Booking booking = getBookingById(bookingId);
@@ -97,7 +93,6 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.toBookingDto(booking);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<BookingDto> getByBookerId(final Long bookerId, final BookingSearchStatus status) {
         User user = getUserById(bookerId);
@@ -140,7 +135,6 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.toBookingDtoList(bookingList);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<BookingDto> getByOwnerId(final Long ownerId, final BookingSearchStatus status) {
         User user = getUserById(ownerId);
@@ -183,19 +177,16 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.toBookingDtoList(bookingList);
     }
 
-    @Transactional
     private User getUserById(final Long bookerId) {
         return userRepository.findById(bookerId)
                 .orElseThrow(() -> new DataNotFoundException(ExceptionMessages.DATA_NOT_FOUND));
     }
 
-    @Transactional
     private Item getItemById(final Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new DataNotFoundException(ExceptionMessages.DATA_NOT_FOUND));
     }
 
-    @Transactional
     private Booking getBookingById(final Long bookingId) {
         return bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new DataNotFoundException(ExceptionMessages.DATA_NOT_FOUND));
