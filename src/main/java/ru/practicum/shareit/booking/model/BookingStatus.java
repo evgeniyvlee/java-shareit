@@ -1,5 +1,9 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
+/**
+ * Booking status
+ * @author Evgeniy Lee
+ */
 public enum BookingStatus {
     WAITING(" Новое бронирование/Ожидает одобрения"),
     APPROVED("Бронирование подтверждено владельцем"),

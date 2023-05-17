@@ -43,7 +43,7 @@ public class UserMapper {
      * @param users list of users
      * @return list of users DTO
      */
-    public static List<UserDto> toUsersDto(final List<User> users) {
+    public static List<UserDto> toUserDtoList(final List<User> users) {
         List<UserDto> usersDto = new ArrayList<>();
         if (users != null)
             users.stream().forEach(u -> usersDto.add(UserMapper.toUserDto(u)));

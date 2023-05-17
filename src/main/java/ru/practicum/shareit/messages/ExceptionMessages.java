@@ -1,10 +1,10 @@
 package ru.practicum.shareit.messages;
 
 public interface ExceptionMessages {
-    String DATA_ALREADY_EXIST = "Data is already exist";
     String DATA_NOT_FOUND = "Data not found";
-    String USER_NAME_NOT_UNIQUE = "User name is not unique";
-    String USER_EMAIL_NOT_UNIQUE = "User email is not unique";
-    String INVALID_OWNER = "Not owner tries modify item";
-    String ITEM_WITH_NO_OWNER = "Try to create item without owner";
+    String ACCESS_DENIED = "Access denied";
+    String BAD_REQUEST = "Bad request";
+    String UNKNOWN_STATE = "Unknown state: %s";
+    String INVALID_DATA = "Data not valid";
+    String NO_BOOKER_FOR_ITEM = "Booker or item for comment not found";
 }

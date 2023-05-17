@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.messages.LoggingMessages;
 import javax.validation.Valid;
@@ -27,10 +28,12 @@ import java.util.List;
 @RequestMapping("/items")
 public class ItemController {
 
+    // Item service
     private final ItemService service;
 
     @PostMapping
     public ItemDto create(@Valid @RequestBody ItemDto itemDto, @RequestHeader(name = "X-Sharer-User-Id") Long ownerId) {
+        log.debug(LoggingMessages.CREATE.toString(), itemDto);
         return service.create(itemDto, ownerId);
     }
 
@@ -45,9 +48,9 @@ public class ItemController {
     }
 
     @GetMapping("{id}")
-    public ItemDto get(@PathVariable Long id) {
+    public ItemDto get(@RequestHeader(name = "X-Sharer-User-Id") Long userId, @PathVariable Long id) {
         log.debug(LoggingMessages.GET.toString(), id);
-        return service.get(id);
+        return service.get(id, userId);
     }
 
     @DeleteMapping("{id}")
@@ -66,5 +69,15 @@ public class ItemController {
     public List<ItemDto> search(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId, @RequestParam String text) {
         log.debug(LoggingMessages.SEARCH_ITEMS_BY_TEXT.toString());
         return service.search(ownerId, text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(
+            @RequestHeader(name = "X-Sharer-User-Id") long userId,
+            @PathVariable long itemId,
+            @Valid @RequestBody CommentDto commentDto
+    ) {
+        log.debug(LoggingMessages.POST_COMMENT.toString(), itemId, commentDto.getText());
+        return service.createComment(itemId, userId, commentDto);
     }
 }
