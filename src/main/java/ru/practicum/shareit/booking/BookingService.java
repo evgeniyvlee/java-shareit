@@ -41,7 +41,7 @@ public interface BookingService {
      * @param status search status
      * @return list of bookings
      */
-    List<BookingDto> getByBookerId(Long bookerId, BookingSearchStatus status);
+    List<BookingDto> getByBookerId(Long bookerId, BookingSearchStatus status, Integer from, Integer size);
 
     /**
      * Get all bookings by owner
@@ -49,5 +49,5 @@ public interface BookingService {
      * @param status search status
      * @return list of bookings
      */
-    List<BookingDto> getByOwnerId(Long ownerId, BookingSearchStatus status);
+    List<BookingDto> getByOwnerId(Long ownerId, BookingSearchStatus status, Integer from, Integer size);
 }

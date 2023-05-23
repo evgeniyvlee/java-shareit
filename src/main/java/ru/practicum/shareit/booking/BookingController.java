@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import ru.practicum.shareit.booking.dto.BriefBookingDto;
 import ru.practicum.shareit.booking.model.BookingSearchStatus;
 import ru.practicum.shareit.messages.LoggingMessages;
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -25,6 +27,7 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 @RestController
+@Validated
 @RequestMapping(path = "/bookings")
 public class BookingController {
 
@@ -53,15 +56,19 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAllByUser(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                         @RequestParam(defaultValue = "ALL") BookingSearchStatus state) {
+                                         @RequestParam(defaultValue = "ALL") BookingSearchStatus state,
+                                         @RequestParam(name = "from", defaultValue = "0") @Min(0) Integer from,
+                                         @RequestParam(name = "size", defaultValue = "10") @Min(1) Integer size) {
         log.debug(LoggingMessages.GET_BOOKINGS_BY_USER_ID.toString(), userId);
-        return service.getByBookerId(userId, state);
+        return service.getByBookerId(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     List<BookingDto> getAllByOwner(@RequestHeader(name = "X-Sharer-User-Id") long userId,
-                                   @RequestParam(defaultValue = "ALL") BookingSearchStatus state) {
+                                   @RequestParam(defaultValue = "ALL") BookingSearchStatus state,
+                                   @RequestParam(name = "from", defaultValue = "0") @Min(0) Integer from,
+                                   @RequestParam(name = "size", defaultValue = "10") @Min(1) Integer size) {
         log.debug(LoggingMessages.GET_BOOKINGS_BY_OWNER_ID.toString(), userId);
-        return service.getByOwnerId(userId, state);
+        return service.getByOwnerId(userId, state, from, size);
     }
 }
