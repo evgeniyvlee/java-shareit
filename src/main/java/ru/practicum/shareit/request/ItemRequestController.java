@@ -10,9 +10,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @Slf4j
 @Validated
 @RestController

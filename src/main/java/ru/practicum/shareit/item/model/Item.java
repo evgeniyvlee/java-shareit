@@ -23,7 +23,6 @@ import javax.persistence.Transient;
 public class Item {
     // Item ID
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     // Item name
