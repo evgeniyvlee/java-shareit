@@ -21,8 +21,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingSearchStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
-
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

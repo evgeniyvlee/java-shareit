@@ -93,6 +93,7 @@ public class BookingServiceIntegrationTest {
 
         Assertions.assertEquals(expectedBooking, actualBooking);
     }
+
     @Test
     public void getByBookerIdTest() {
         User booker = users.get(1);
