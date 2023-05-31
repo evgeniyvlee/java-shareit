@@ -14,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.LocalDateTimeAdapter;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -69,19 +70,38 @@ public class ItemRequestControllerTest {
     }
 
     @Test
+    public void createItemRequest() throws Exception {
+        ItemRequestDto request = requests.get(0);
+        UserDto user = users.get(0);
+        Mockito.when(service.create(Mockito.any(ItemRequestDto.class), Mockito.anyLong())).thenReturn(request);
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders
+                                .post("/requests")
+                                .header(X_SHARER_USER_ID, user.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(gson.toJson(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(request.getId()), Long.class))
+                .andExpect(jsonPath("$.description", is(request.getDescription())));
+    }
+
+    @Test
     public void createItemRequestFailed() throws Exception {
         ItemRequestDto request = requests.get(0);
         request.setDescription("");
         UserDto user = users.get(0);
-        Mockito.when(service.create(request, user.getId())).thenReturn(request);
+        Mockito
+                .when(service.create(Mockito.any(ItemRequestDto.class), Mockito.anyLong()))
+                .thenReturn(request);
 
         mockMvc.perform(
                 MockMvcRequestBuilders
-                        .patch("/requests")
+                        .post("/requests")
                         .header(X_SHARER_USER_ID, user.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(request)))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().is4xxClientError());
     }
 
     @Test

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -30,6 +31,8 @@ public class RequestServiceIntegrationTest {
 
     private final List<UserDto> users = new ArrayList<>();
 
+    private final List<ItemDto> items = new ArrayList<>();
+
     @BeforeEach
     @Sql({"schema.sql"})
     public void beforeEach() {
@@ -45,6 +48,7 @@ public class RequestServiceIntegrationTest {
         request2.setCreated(LocalDateTime.now());
         requests.add(request2);
 
+
         users.clear();
         UserDto user1 = new UserDto();
         user1.setId(1L);
@@ -58,12 +62,22 @@ public class RequestServiceIntegrationTest {
         user2.setEmail("user2@yandex.ru");
         users.add(user1);
         userService.create(user2);
+
+        items.clear();
+        ItemDto item1 = new ItemDto();
+        item1.setId(1L);
+        item1.setName("Item 1");
+        item1.setDescription("Item 1 description");
+        item1.setAvailable(true);
+        item1.setRequestId(request1.getId());
+        items.add(item1);
     }
 
     @Test
     public void createRequestTest() {
         UserDto user = users.get(0);
         ItemRequestDto expectedRequest = requests.get(0);
+        itemService.create(items.get(0), user.getId());
         ItemRequestDto actualRequest = requestService.create(expectedRequest, user.getId());
 
         Assertions.assertEquals(expectedRequest.getId(), actualRequest.getId());
