@@ -32,6 +32,7 @@ public class CommentMapper {
     ) {
         Comment comment = new Comment();
         if (commentDto != null) {
+            comment.setId(commentDto.getId());
             comment.setAuthor(user);
             comment.setItem(item);
             comment.setCreated(created);

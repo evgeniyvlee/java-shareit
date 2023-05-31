@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.practicum.shareit.LocalDateTimeAdapter;
@@ -65,6 +66,22 @@ public class ItemRequestControllerTest {
         user1.setName("User 1");
         user1.setEmail("user1@yandex.ru");
         users.add(user1);
+    }
+
+    @Test
+    public void createItemRequestFailed() throws Exception {
+        ItemRequestDto request = requests.get(0);
+        request.setDescription("");
+        UserDto user = users.get(0);
+        Mockito.when(service.create(request, user.getId())).thenReturn(request);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .patch("/requests")
+                        .header(X_SHARER_USER_ID, user.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(gson.toJson(request)))
+                .andExpect(status().is5xxServerError());
     }
 
     @Test

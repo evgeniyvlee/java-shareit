@@ -11,8 +11,10 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingSearchStatus;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import java.time.LocalDateTime;
@@ -92,6 +94,17 @@ public class BookingServiceIntegrationTest {
         expectedBooking.setStatus(BookingStatus.APPROVED);
 
         Assertions.assertEquals(expectedBooking, actualBooking);
+    }
+
+    @Test
+    public void approveBookingTestFailed() {
+        Booking booking = bookings.get(0);
+        bookingRepository.save(booking);
+        ForbiddenException exception =
+                Assertions.assertThrows(ForbiddenException.class,
+                        () -> bookingService.approve(booking.getId(), users.get(1).getId(), true));
+
+        Assertions.assertEquals(ExceptionMessages.ACCESS_DENIED, exception.getMessage());
     }
 
     @Test
