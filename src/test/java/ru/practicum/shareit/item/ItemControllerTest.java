@@ -2,7 +2,6 @@ package ru.practicum.shareit.item;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
