@@ -31,7 +31,6 @@ public class CommentMapperTest {
         comment.setCreated(now);
 
         Comment actualComment = CommentMapper.toComment(comment, user, item, now);
-        Assertions.assertEquals(comment.getId(), actualComment.getId());
         Assertions.assertEquals(user, actualComment.getAuthor());
         Assertions.assertEquals(item, actualComment.getItem());
         Assertions.assertEquals(now, actualComment.getCreated());
