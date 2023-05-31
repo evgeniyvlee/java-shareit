@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,12 +16,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.practicum.shareit.LocalDateTimeAdapter;
+import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.user.dto.UserDto;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsStringIgnoringCase;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.is;
@@ -42,6 +47,8 @@ public class ItemControllerTest {
     private final List<UserDto> users = new ArrayList<>();
 
     private final List<ItemDto> items = new ArrayList<>();
+
+    private final List<CommentDto> comments = new ArrayList<>();
 
     @BeforeAll
     static void beforeAll() {
@@ -78,6 +85,13 @@ public class ItemControllerTest {
         itemDto2.setDescription("Item 2 description");
         itemDto2.setAvailable(true);
         items.add(itemDto2);
+
+        CommentDto comment = new CommentDto();
+        comment.setId(1L);
+        comment.setText("Comment1");
+        comment.setAuthorName(user1.getName());
+        comment.setCreated(LocalDateTime.now());
+        comments.add(comment);
     }
 
     @Test
@@ -173,5 +187,25 @@ public class ItemControllerTest {
                                 .param("text", "text"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()", is(1)));
+    }
+
+    @Test
+    public void createCommentTest() throws Exception {
+        Mockito
+                .when(service.createComment(Mockito.anyLong(), Mockito.anyLong(), Mockito.any(CommentDto.class)))
+                .thenThrow(new BadRequestException(ExceptionMessages.NO_BOOKER_FOR_ITEM));
+        ItemDto item = items.get(0);
+        UserDto user = users.get(0);
+        CommentDto comment = comments.get(0);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post("/items/{itemId}/comment", item.getId())
+                        .header(X_SHARER_USER_ID, user.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(gson.toJson(comment)))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error",
+                        containsStringIgnoringCase(ExceptionMessages.NO_BOOKER_FOR_ITEM)));
     }
 }

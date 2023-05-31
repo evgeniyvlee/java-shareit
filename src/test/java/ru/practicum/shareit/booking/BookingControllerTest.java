@@ -19,16 +19,18 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BriefBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingSearchStatus;
+import ru.practicum.shareit.exception.UnknownStateException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.user.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.hamcrest.Matchers.is;
 
 @WebMvcTest(controllers = BookingController.class)
 @ExtendWith(MockitoExtension.class)
@@ -103,6 +105,23 @@ public class BookingControllerTest {
     }
 
     @Test
+    public void createBookingTestFailed() throws Exception {
+        BookingDto bookingDto = BookingMapper.toBookingDto(bookings.get(0));
+        User user = users.get(0);
+        Mockito
+                .when(service.create(Mockito.any(BriefBookingDto.class), Mockito.anyLong()))
+                .thenThrow(new ValidationException(ExceptionMessages.INVALID_DATA));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/bookings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(gson.toJson(BookingMapper.toBriefBookingDto(bookings.get(0))))
+                        .header(X_SHARER_USER_ID, user.getId()))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error",
+                        containsStringIgnoringCase(ExceptionMessages.INVALID_DATA)));
+    }
+
+    @Test
     public void approveBookingTest() throws Exception {
         BookingDto bookingDto = BookingMapper.toBookingDto(bookings.get(0));
         User user = users.get(0);
@@ -153,6 +172,25 @@ public class BookingControllerTest {
     }
 
     @Test
+    public void getAllByUserTestWithUnknownStatus() throws Exception {
+        BookingDto bookingDto = BookingMapper.toBookingDto(bookings.get(0));
+        User user = users.get(0);
+        Mockito
+                .when(service.getByBookerId(Mockito.anyLong(), Mockito.any(BookingSearchStatus.class),
+                        Mockito.anyInt(), Mockito.anyInt()))
+                .thenThrow(new UnknownStateException(ExceptionMessages.UNKNOWN_STATE));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/bookings")
+                    .header(X_SHARER_USER_ID, user.getId())
+                    .param("state", "ALL")
+                    .param("from", "0")
+                    .param("size", "20"))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error",
+                        containsStringIgnoringCase(ExceptionMessages.UNKNOWN_STATE)));
+    }
+
+    @Test
     public void getAllByOwnerTest() throws Exception {
         BookingDto bookingDto = BookingMapper.toBookingDto(bookings.get(0));
         User user = users.get(0);
@@ -169,5 +207,24 @@ public class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(bookingDto.getId()), Long.class));
+    }
+
+    @Test
+    public void getAllByOwnerTestWithUnknownStatus() throws Exception {
+        BookingDto bookingDto = BookingMapper.toBookingDto(bookings.get(0));
+        User user = users.get(0);
+        Mockito
+                .when(service.getByOwnerId(Mockito.anyLong(), Mockito.any(BookingSearchStatus.class),
+                        Mockito.anyInt(), Mockito.anyInt()))
+                .thenThrow(new UnknownStateException(ExceptionMessages.UNKNOWN_STATE));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/bookings/owner")
+                    .header(X_SHARER_USER_ID, user.getId())
+                    .param("state", "ALL")
+                    .param("from", "0")
+                    .param("size", "20"))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error",
+                        containsStringIgnoringCase(ExceptionMessages.UNKNOWN_STATE)));
     }
 }
