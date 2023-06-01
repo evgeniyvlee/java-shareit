@@ -1,9 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BriefBookingDto;
@@ -17,6 +15,8 @@ import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.util.PageSettings;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +101,7 @@ public class BookingServiceImpl implements BookingService {
             final Long bookerId, final BookingSearchStatus status, final Integer from, final Integer size
     ) {
         User user = getUserById(bookerId);
-        Pageable pageable = getPage(from, size, BookingRepository.SORT_START_DATE_DESC);
+        Pageable pageable = new PageSettings(from, size, BookingRepository.SORT_START_DATE_DESC);
         List<Booking> bookingList = new ArrayList<>();
         switch (status) {
             case ALL:
@@ -140,7 +140,7 @@ public class BookingServiceImpl implements BookingService {
             final Long ownerId, final BookingSearchStatus status, final Integer from, final Integer size
     ) {
         User user = getUserById(ownerId);
-        Pageable pageable = getPage(from, size, BookingRepository.SORT_START_DATE_DESC);
+        Pageable pageable = new PageSettings(from, size, BookingRepository.SORT_START_DATE_DESC);
         List<Booking> bookingList = new ArrayList<>();
 
         switch (status) {
@@ -199,9 +199,5 @@ public class BookingServiceImpl implements BookingService {
         } else {
             throw new ForbiddenException(ExceptionMessages.ACCESS_DENIED);
         }
-    }
-
-    private PageRequest getPage(Integer from, Integer size, Sort sort) {
-        return PageRequest.of(from / size, size, sort);
     }
 }

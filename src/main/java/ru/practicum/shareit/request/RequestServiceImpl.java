@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request;
 
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DataNotFoundException;
@@ -13,6 +12,7 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.util.PageSettings;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,7 +37,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<ItemRequestDto> getAllByRequesterId(Long requesterId, Integer from, Integer size) {
         User requester = getUserById(requesterId);
-        Pageable pageable = PageRequest.of(from / size, size, RequestRepository.SORT_CREATE_DATE_ASC);
+        Pageable pageable = new PageSettings(from, size, RequestRepository.SORT_CREATE_DATE_ASC);
         List<ItemRequest> requests = requestRepository.findAllByRequesterId(requester.getId(), pageable);
         List<Long> requestIds = requests.stream().map(ItemRequest::getId).collect(Collectors.toList());
         Map<Long, List<Item>> itemsGroupByRequestIds = getItemsByRequestIds(requestIds);
@@ -59,7 +59,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<ItemRequestDto> getAllOtherUsers(Long requesterId, Integer from, Integer size) {
         User requester = getUserById(requesterId);
-        Pageable pageable = PageRequest.of(from / size, size, RequestRepository.SORT_CREATE_DATE_ASC);
+        Pageable pageable = new PageSettings(from, size, RequestRepository.SORT_CREATE_DATE_ASC);
         List<ItemRequest> requests = requestRepository.findAllByRequesterIdNot(requester.getId(), pageable);
         List<Long> requestIds = requests.stream().map(ItemRequest::getId).collect(Collectors.toList());
         Map<Long, List<Item>> itemsGroupByRequestIds = getItemsByRequestIds(requestIds);
