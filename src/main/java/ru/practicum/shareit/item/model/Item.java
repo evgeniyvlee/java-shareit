@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.Data;
-import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.User;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -11,7 +11,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Column;
 import javax.persistence.ManyToOne;
 import javax.persistence.JoinColumn;
-import javax.persistence.Transient;
 
 /**
  * Item class holds info for items
@@ -44,6 +43,7 @@ public class Item {
     private User owner;
 
     // Item request for booking
-    @Transient
+    @ManyToOne
+    @JoinColumn(name = "request_id")
     private ItemRequest request;
 }

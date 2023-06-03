@@ -44,7 +44,7 @@ public interface ItemService {
      * @param ownerId user ID
      * @return item list
      */
-    List<ItemDto> getByOwner(Long ownerId);
+    List<ItemDto> getByOwner(Long ownerId, Integer from, Integer size);
 
     /**
      * Search items which contain in name or description text for user with ID
@@ -52,7 +52,7 @@ public interface ItemService {
      * @param text searched text
      * @return item list
      */
-    List<ItemDto> search(Long ownerId, String text);
+    List<ItemDto> search(Long ownerId, String text, Integer from, Integer size);
 
     /**
      * Create comment by author for item

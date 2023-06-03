@@ -16,6 +16,8 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.messages.LoggingMessages;
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 /**
@@ -60,15 +62,22 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getByOwner(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId) {
+    public List<ItemDto> getByOwner(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId,
+                                    @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
+                                    @RequestParam(name = "size", defaultValue = "10") @Positive Integer size
+    ) {
         log.debug(LoggingMessages.GET_ITEMS_BY_OWNER_ID.toString());
-        return service.getByOwner(ownerId);
+        return service.getByOwner(ownerId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId, @RequestParam String text) {
+    public List<ItemDto> search(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId,
+                                @RequestParam String text,
+                                @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
+                                @RequestParam(name = "size", defaultValue = "10") @Positive Integer size
+    ) {
         log.debug(LoggingMessages.SEARCH_ITEMS_BY_TEXT.toString());
-        return service.search(ownerId, text);
+        return service.search(ownerId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BriefBookingDto;
@@ -14,6 +15,8 @@ import ru.practicum.shareit.messages.ExceptionMessages;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.util.PageSettings;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,38 +97,35 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getByBookerId(final Long bookerId, final BookingSearchStatus status) {
+    public List<BookingDto> getByBookerId(
+            final Long bookerId, final BookingSearchStatus status, final Integer from, final Integer size
+    ) {
         User user = getUserById(bookerId);
+        Pageable pageable = new PageSettings(from, size, BookingRepository.SORT_START_DATE_DESC);
         List<Booking> bookingList = new ArrayList<>();
         switch (status) {
             case ALL:
-                bookingList = bookingRepository.findAllByBookerId(bookerId, BookingRepository.SORT_START_DATE_DESC);
+                bookingList = bookingRepository.findAllByBookerId(bookerId, pageable);
                 break;
             case CURRENT:
                 bookingList = bookingRepository
-                        .findAllByBookerIdAndStartBeforeAndEndAfter(
-                            bookerId, LocalDateTime.now(), BookingRepository.SORT_START_DATE_DESC
-                        );
+                        .findAllByBookerIdAndStartBeforeAndEndAfter(bookerId, LocalDateTime.now(), pageable);
                 break;
             case PAST:
                 bookingList = bookingRepository
-                        .findAllByBookerIdAndEndBefore(bookerId, LocalDateTime.now(),
-                                BookingRepository.SORT_START_DATE_DESC);
+                        .findAllByBookerIdAndEndBefore(bookerId, LocalDateTime.now(), pageable);
                 break;
             case FUTURE:
                 bookingList = bookingRepository
-                        .findAllByBookerIdAndStartAfter(bookerId, LocalDateTime.now(),
-                                BookingRepository.SORT_START_DATE_DESC);
+                        .findAllByBookerIdAndStartAfter(bookerId, LocalDateTime.now(), pageable);
                 break;
             case WAITING:
                 bookingList = bookingRepository
-                        .findAllByBookerIdAndStatus(bookerId, BookingStatus.WAITING,
-                                BookingRepository.SORT_START_DATE_DESC);
+                        .findAllByBookerIdAndStatus(bookerId, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
                 bookingList = bookingRepository
-                        .findAllByBookerIdAndStatus(bookerId, BookingStatus.REJECTED,
-                                BookingRepository.SORT_START_DATE_DESC);
+                        .findAllByBookerIdAndStatus(bookerId, BookingStatus.REJECTED, pageable);
                 break;
             default:
                 throw new UnknownStateException(
@@ -136,38 +136,36 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getByOwnerId(final Long ownerId, final BookingSearchStatus status) {
+    public List<BookingDto> getByOwnerId(
+            final Long ownerId, final BookingSearchStatus status, final Integer from, final Integer size
+    ) {
         User user = getUserById(ownerId);
+        Pageable pageable = new PageSettings(from, size, BookingRepository.SORT_START_DATE_DESC);
         List<Booking> bookingList = new ArrayList<>();
 
         switch (status) {
             case ALL:
-                bookingList = bookingRepository.findAllByItemOwnerId(ownerId, BookingRepository.SORT_START_DATE_DESC);
+                bookingList = bookingRepository.findAllByItemOwnerId(ownerId, pageable);
                 break;
             case CURRENT:
                 bookingList = bookingRepository
-                        .findAllByItemOwnerIdAndStartBeforeAndEndAfter(ownerId, LocalDateTime.now(),
-                                BookingRepository.SORT_START_DATE_DESC);
+                        .findAllByItemOwnerIdAndStartBeforeAndEndAfter(ownerId, LocalDateTime.now(), pageable);
                 break;
             case PAST:
                 bookingList = bookingRepository
-                        .findAllByItemOwnerIdAndEndBefore(ownerId, LocalDateTime.now(),
-                                BookingRepository.SORT_START_DATE_DESC);
+                        .findAllByItemOwnerIdAndEndBefore(ownerId, LocalDateTime.now(), pageable);
                 break;
             case FUTURE:
                 bookingList = bookingRepository
-                        .findAllByItemOwnerIdAndStartAfter(ownerId, LocalDateTime.now(),
-                                BookingRepository.SORT_START_DATE_DESC);
+                        .findAllByItemOwnerIdAndStartAfter(ownerId, LocalDateTime.now(), pageable);
                 break;
             case WAITING:
                 bookingList = bookingRepository
-                        .findAllByItemOwnerIdAndStatus(ownerId, BookingStatus.WAITING,
-                                BookingRepository.SORT_START_DATE_DESC);
+                        .findAllByItemOwnerIdAndStatus(ownerId, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
                 bookingList = bookingRepository
-                        .findAllByItemOwnerIdAndStatus(ownerId, BookingStatus.REJECTED,
-                                BookingRepository.SORT_START_DATE_DESC);
+                        .findAllByItemOwnerIdAndStatus(ownerId, BookingStatus.REJECTED, pageable);
                 break;
             default:
                 throw new UnknownStateException(

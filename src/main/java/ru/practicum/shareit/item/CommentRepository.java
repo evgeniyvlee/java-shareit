@@ -14,10 +14,9 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAllByItemIdOrderById(Long itemId, Sort sort);
 
-    @Query(value = "select c.id, c.text, c.item_id, c.author_id, c.created " +
-            "from comments as c, items as i " +
-            "where (i.id = c.item_id) and (i.owner_id = :ownerId) " +
-            "group by c.item_id", nativeQuery = true)
+    @Query(value = "SELECT comment FROM Comment comment, Item item " +
+            "WHERE comment.item.id = item.id AND item.owner.id = :ownerId " +
+            "GROUP BY comment.item.id")
     List<Comment> findAllByOwnerId(Long ownerId);
 
     @Query(value = "SELECT comment FROM Comment comment WHERE comment.item.id IN :itemIds")

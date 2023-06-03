@@ -34,4 +34,6 @@ public class ItemDto {
     private BriefBookingDto lastBooking;
     // Next booking
     private BriefBookingDto nextBooking;
+    // Request ID
+    private Long requestId;
 }
