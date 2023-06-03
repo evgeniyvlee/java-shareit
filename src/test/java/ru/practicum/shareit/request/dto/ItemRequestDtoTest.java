@@ -15,7 +15,7 @@ public class ItemRequestDtoTest {
     @Autowired
     JacksonTester<ItemRequestDto> json;
 
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSS");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
 
     @Test
     public void dtoToJsonTest() throws IOException {
