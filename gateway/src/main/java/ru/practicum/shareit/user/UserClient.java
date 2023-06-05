@@ -12,6 +12,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 @Service
 public class UserClient extends BaseClient {
+
     private static final String API_PREFIX = "/users";
 
     @Autowired
@@ -27,6 +28,7 @@ public class UserClient extends BaseClient {
     public ResponseEntity<Object> create(UserDto userDto) {
         return post("", userDto);
     }
+
     public ResponseEntity<Object> update(long userId, UserDto userDto) {
         return patch("/" + userId, userId, userDto);
     }
