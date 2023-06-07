@@ -24,7 +24,7 @@ public class BookingDto {
     @Future
     private LocalDateTime end;
 
-    // Item ID
+    /// Item ID
     private Long itemId;
 
     // Booker ID
