@@ -40,16 +40,16 @@ public class ItemRequestController {
 
     @GetMapping
     public List<ItemRequestDto> getAllByRequesterId(@RequestHeader(name = X_SHARER_USER_ID_HEADER) Long requesterId,
-                                                    @RequestParam(name = "from") Integer from,
-                                                    @RequestParam(name = "size") Integer size) {
+                                                    @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                    @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.debug(LoggingMessages.GET_ALL.toString());
         return service.getAllByRequesterId(requesterId, from, size);
     }
 
     @GetMapping("/all")
     public List<ItemRequestDto> getAllRequestOtherUsers(@RequestHeader(name = X_SHARER_USER_ID_HEADER) Long requesterId,
-                                                        @RequestParam(name = "from") Integer from,
-                                                        @RequestParam(name = "size") Integer size) {
+                                                        @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                        @RequestParam(name = "size", defaultValue = "10") Integer size) {
         return service.getAllOtherUsers(requesterId, from, size);
     }
 }

@@ -58,15 +58,16 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getByOwner(@RequestHeader(name = X_SHARER_USER_ID_HEADER) Long ownerId,
-                                    @RequestParam(name = "from") Integer from, @RequestParam(name = "size") Integer size
-    ) {
+                                    @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                    @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.debug(LoggingMessages.GET_ITEMS_BY_OWNER_ID.toString());
         return service.getByOwner(ownerId, from, size);
     }
 
     @GetMapping("/search")
     public List<ItemDto> search(@RequestHeader(name = X_SHARER_USER_ID_HEADER) Long ownerId, @RequestParam String text,
-                                @RequestParam(name = "from") Integer from, @RequestParam(name = "size") Integer size) {
+                                @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.debug(LoggingMessages.SEARCH_ITEMS_BY_TEXT.toString());
         return service.search(ownerId, text, from, size);
     }

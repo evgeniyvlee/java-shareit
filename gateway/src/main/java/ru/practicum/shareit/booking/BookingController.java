@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
@@ -35,8 +37,9 @@ public class BookingController {
     }
 
     @PatchMapping("{bookingId}")
-    public ResponseEntity<Object> approve(@PathVariable Long bookingId, @RequestHeader(name = X_SHARER_USER_ID_HEADER) Long userId,
-                              @RequestParam Boolean approved) {
+    public ResponseEntity<Object> approve(@PathVariable Long bookingId,
+                                          @RequestHeader(name = X_SHARER_USER_ID_HEADER) Long userId,
+                                          @RequestParam Boolean approved) {
         log.debug(LoggingMessages.APPROVE_BOOKING.toString().toString(), bookingId);
         return bookingClient.approve(bookingId, userId, approved);
     }

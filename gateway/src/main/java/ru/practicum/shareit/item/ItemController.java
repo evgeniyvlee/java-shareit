@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -35,7 +37,7 @@ public class ItemController {
         return itemClient.create(ownerId, itemDto);
     }
 
-    @PatchMapping
+    @PatchMapping("{itemId}")
     public ResponseEntity<Object> update(@PathVariable Long itemId, @RequestBody ItemDto itemDto,
                                          @RequestHeader(name = X_SHARER_USER_ID_HEADER) Long ownerId) {
         log.debug(LoggingMessages.UPDATE.toString(), itemDto);
