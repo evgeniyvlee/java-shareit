@@ -56,7 +56,6 @@ public class BookingServiceIntegrationTest {
 
         items.clear();
         Item item1 = new Item();
-        item1.setId(1L);
         item1.setName("Item 1");
         item1.setDescription("Item description 1");
         item1.setAvailable(true);
